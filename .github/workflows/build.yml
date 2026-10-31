@@ -1,0 +1,129 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - entrypoint/**
+      - scripts/**
+      - versions.json
+      - .github/workflows/build.yml
+  pull_request:
+    paths:
+      - Dockerfile
+      - entrypoint/**
+      - scripts/**
+      - versions.json
+      - .github/workflows/build.yml
+  schedule:
+    - cron: "17 3 * * 1"   # weekly, picks up new SQL Server cumulative updates in the base image
+  workflow_dispatch:
+    inputs:
+      push:
+        description: "Push images to the registries"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: mssql-sample-databases
+  PLATFORMS: linux/amd64
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PUSH: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.push) }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download backups and scripts
+        run: scripts/fetch.sh
+
+      - name: Resolve the base image
+        id: base
+        run: |
+          base=$(python3 -I -c 'import json;print(json.load(open("versions.json"))["base_image"])')
+          docker pull --platform linux/amd64 "$base"
+          version=$(docker inspect -f '{{ index .Config.Labels "com.microsoft.version" }}' "$base")
+          echo "image=${base}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "base: ${base} (SQL Server ${version})"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build for smoke test
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          platforms: linux/amd64
+          tags: local/${{ env.IMAGE }}:test
+          build-args: |
+            BASE_IMAGE=${{ steps.base.outputs.image }}
+
+      - name: Smoke test
+        run: scripts/smoke-test.sh local/${{ env.IMAGE }}:test 900
+
+      - name: Login to GHCR
+        if: env.PUSH == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check Docker Hub credentials
+        if: env.PUSH == 'true' && env.DOCKERHUB_TOKEN == ''
+        run: echo "::warning::DOCKERHUB_TOKEN secret is empty or missing; publishing to GHCR only"
+
+      - name: Login to Docker Hub
+        if: env.PUSH == 'true' && env.DOCKERHUB_TOKEN != ''
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Compute image references
+        id: refs
+        env:
+          TAGS: |
+            latest
+            2025-latest
+            ${{ steps.base.outputs.version }}
+        run: |
+          {
+            echo "tags<<EOF"
+            while IFS= read -r t; do
+              [ -n "$t" ] || continue
+              echo "ghcr.io/${{ github.repository_owner }}/${IMAGE}:${t}"
+              if [ -n "$DOCKERHUB_TOKEN" ]; then
+                echo "docker.io/${DOCKERHUB_USERNAME}/${IMAGE}:${t}"
+              fi
+            done <<< "$TAGS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push (${{ env.PLATFORMS }})
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ env.PUSH == 'true' }}
+          platforms: ${{ env.PLATFORMS }}
+          tags: ${{ steps.refs.outputs.tags }}
+          build-args: |
+            BASE_IMAGE=${{ steps.base.outputs.image }}
+          labels: |
+            org.opencontainers.image.base.name=${{ steps.base.outputs.image }}
+            org.opencontainers.image.revision=${{ github.sha }}

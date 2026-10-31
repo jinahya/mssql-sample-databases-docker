@@ -1,0 +1,47 @@
+{
+  "image": "mssql-sample-databases",
+  "base_image": "mcr.microsoft.com/mssql/server:2025-latest",
+  "platforms": "linux/amd64",
+  "files": [
+    {
+      "path": "downloads/AdventureWorks2025.bak",
+      "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorks2025.bak",
+      "sha256": "fa6a2a5d431ad88123f89b36b1f2c7e42ca4bdf6b293269a44df80f6de3738a5"
+    },
+    {
+      "path": "downloads/WideWorldImporters-Standard.bak",
+      "url": "https://github.com/microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Standard.bak",
+      "sha256": "066279a8cd28c8d85cbd8215ea71a5d672b420cfbc19756b635c27bd8027dada"
+    },
+    {
+      "path": "downloads/futon-manufacturing/01-schema.sql",
+      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/01-schema.sql",
+      "sha256": "a1b75d768cf1cc38a7b60f3dc27b4a5fd4f8f09ff2fcb5f0106f4bb1ec3afb73"
+    },
+    {
+      "path": "downloads/futon-manufacturing/02-sample-data.sql",
+      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/02-sample-data.sql",
+      "sha256": "cd4597e75068a835c8da5ec72c79b28f9d5893cb46b5bc2210c62bb89b09bf76"
+    },
+    {
+      "path": "downloads/futon-manufacturing/03-manufacturing-reports.sql",
+      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/03-manufacturing-reports.sql",
+      "sha256": "e621b5d7e8f2a87d74c67b7a801908dc27252f0a533d3935e642847fe5512da8"
+    },
+    {
+      "path": "downloads/futon-manufacturing/05-sales-schema-enhancements.sql",
+      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/05-sales-schema-enhancements.sql",
+      "sha256": "af42716347663d4e0016b9ae19c557a99310ddcccc032e31debd2bcaa72da7ba"
+    },
+    {
+      "path": "downloads/futon-manufacturing/06-sales-sample-data.sql",
+      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/06-sales-sample-data.sql",
+      "sha256": "6c91bc7bf0a61f47095de306147954417f1b64ed64664ca712d058a3f65f094d"
+    },
+    {
+      "path": "downloads/futon-manufacturing/07-sales-reports.sql",
+      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/07-sales-reports.sql",
+      "sha256": "fcb59e41722ef14ae85c6404c4e96ffe10c6436e01d3bed9eeaa709af113695b"
+    }
+  ]
+}
