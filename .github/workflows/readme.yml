@@ -21,7 +21,7 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check Docker Hub credentials
         if: env.DOCKERHUB_TOKEN == ''
         run: echo "::warning::DOCKERHUB_TOKEN secret is empty or missing; skipping README sync"

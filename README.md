@@ -87,6 +87,6 @@ scripts/smoke-test.sh mssql-sample-databases
 
 ## License
 
-The scripts of this repository are under the MIT License. The sample databases are Microsoft's, under the
+The scripts of this repository are under the [MIT License](LICENSE). The sample databases are Microsoft's, under the
 [MIT License](https://github.com/microsoft/sql-server-samples/blob/master/license.txt). SQL Server itself is under
 Microsoft's license terms.
