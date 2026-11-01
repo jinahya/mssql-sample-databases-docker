@@ -13,8 +13,6 @@ COPY --chmod=0555 entrypoint/ /opt/sample-databases/
 # The sample databases are Microsoft's under the MIT License, whose notice must accompany every copy.
 COPY --chmod=0444 downloads/sql-server-samples-license.txt /opt/sample-databases/LICENSE
 
-ENV ACCEPT_EULA=Y
-
 HEALTHCHECK --interval=5s --timeout=10s --start-period=30s --retries=60 CMD ["/opt/sample-databases/healthcheck.sh"]
 
 ENTRYPOINT ["/opt/sample-databases/entrypoint.sh"]

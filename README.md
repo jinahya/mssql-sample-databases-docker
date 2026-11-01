@@ -18,14 +18,15 @@ Images are published to:
 ## Quick start
 
 ```sh
-docker run -d --name mssql-samples -p 1433:1433 -e MSSQL_SA_PASSWORD='Passw0rd!' onacit/mssql-sample-databases
+docker run -d --name mssql-samples -p 1433:1433 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Passw0rd!' onacit/mssql-sample-databases
 # wait until `docker inspect -f '{{.State.Health.Status}}' mssql-samples` says healthy, then
 sqlcmd -C -S localhost -U sa -P 'Passw0rd!' -Q 'SELECT count(*) FROM AdventureWorks.Person.Person'
 ```
 
+`ACCEPT_EULA=Y` is required, as in the official image; setting it accepts the
+[SQL Server license](https://go.microsoft.com/fwlink/?linkid=857698), and without it SQL Server exits at start.
 `MSSQL_SA_PASSWORD` is required and must meet SQL Server's
-[password policy](https://learn.microsoft.com/sql/relational-databases/security/password-policy). `ACCEPT_EULA=Y` is
-preset; by running the image you accept the [SQL Server license](https://go.microsoft.com/fwlink/?linkid=857698). The
+[password policy](https://learn.microsoft.com/sql/relational-databases/security/password-policy). The
 edition is Developer (`MSSQL_PID=developer`), free for development and testing only. Everything else behaves exactly
 like the official image.
 
@@ -66,6 +67,7 @@ that use `CONTAINS` or `FREETEXT`, such as `dbo.uspSearchCandidateResumes`, fail
 
 | variable | default | description |
 |---|---|---|
+| `ACCEPT_EULA` | (none) | `Y` accepts the [SQL Server license](https://go.microsoft.com/fwlink/?linkid=857698); required |
 | `MSSQL_SA_PASSWORD` | (none) | the `sa` password; required |
 | `SAMPLE_DATABASES_STARTUP_TIMEOUT` | `300` | seconds the loader waits for the server to accept connections |
 

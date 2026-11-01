@@ -11,7 +11,7 @@ password='Smoke-test-1'
 cleanup() { docker rm -f -v "$name" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
-docker run -d --name "$name" --platform linux/amd64 -e MSSQL_SA_PASSWORD="$password" "$image" >/dev/null
+docker run -d --name "$name" --platform linux/amd64 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD="$password" "$image" >/dev/null
 echo "smoke-test: started $name from $image, waiting up to ${timeout}s for the load"
 
 start=$(date +%s)
