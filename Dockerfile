@@ -10,6 +10,8 @@ FROM ${BASE_IMAGE}
 COPY --chmod=0555 downloads/AdventureWorks2025.bak downloads/WideWorldImporters-Standard.bak /opt/sample-databases/
 COPY --chmod=0555 downloads/futon-manufacturing/ /opt/sample-databases/futon-manufacturing/
 COPY --chmod=0555 entrypoint/ /opt/sample-databases/
+# The sample databases are Microsoft's under the MIT License, whose notice must accompany every copy.
+COPY --chmod=0444 downloads/sql-server-samples-license.txt /opt/sample-databases/LICENSE
 
 ENV ACCEPT_EULA=Y
 
@@ -22,4 +24,4 @@ LABEL org.opencontainers.image.title="SQL Server with the Microsoft sample datab
       org.opencontainers.image.description="Official SQL Server image that loads AdventureWorks, WideWorldImporters and FutonManufacturing on first start" \
       org.opencontainers.image.source="https://github.com/jinahya/mssql-sample-databases-docker" \
       org.opencontainers.image.url="https://github.com/microsoft/sql-server-samples/tree/master/samples/databases" \
-      org.opencontainers.image.licenses="MIT"
+      org.opencontainers.image.licenses="MIT AND LicenseRef-Microsoft-SQL-Server-EULA"

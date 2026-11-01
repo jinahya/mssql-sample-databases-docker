@@ -42,6 +42,11 @@
       "path": "downloads/futon-manufacturing/07-sales-reports.sql",
       "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/07-sales-reports.sql",
       "sha256": "fcb59e41722ef14ae85c6404c4e96ffe10c6436e01d3bed9eeaa709af113695b"
+    },
+    {
+      "path": "downloads/sql-server-samples-license.txt",
+      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/license.txt",
+      "sha256": "201f3705979e932c92cd3c6ddbddf4dc3c71dcc5a82089a1e4018227cfe1cf09"
     }
   ]
 }

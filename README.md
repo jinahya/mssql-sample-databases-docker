@@ -87,6 +87,8 @@ scripts/smoke-test.sh mssql-sample-databases
 
 ## License
 
-The scripts of this repository are under the [MIT License](https://github.com/jinahya/mssql-sample-databases-docker/blob/main/LICENSE). The sample databases are Microsoft's, under the
-[MIT License](https://github.com/microsoft/sql-server-samples/blob/master/license.txt). SQL Server itself is under
-Microsoft's license terms.
+The scripts of this repository are under the [MIT License](https://github.com/jinahya/mssql-sample-databases-docker/blob/main/LICENSE).
+The sample databases are Microsoft's, "Copyright (c) Microsoft Corporation", under the
+[MIT License](https://github.com/microsoft/sql-server-samples/blob/master/license.txt); the image carries that notice
+at `/opt/sample-databases/LICENSE`. SQL Server itself is under Microsoft's
+[license terms](https://go.microsoft.com/fwlink/?linkid=857698).
