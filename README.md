@@ -87,6 +87,91 @@ scripts/smoke-test.sh mssql-sample-databases
 - A new sample release: update the file's `url` and `sha256` in `versions.json`, and the restore's logical file names in
   `entrypoint/load.sh` if they changed (`RESTORE FILELISTONLY` lists them).
 
+## Roadmap
+
+Planned, not built yet: one image per database and SQL Server version, tagged `sql-server-samples:<db>-<version>`,
+with no combined image. A database gets images when
+[microsoft/sql-server-samples](https://github.com/microsoft/sql-server-samples) still maintains it (not archived nor
+abandoned; a change some years ago counts, one decades ago does not), whether it ships as a release `.bak` or as
+scripts.
+
+Microsoft publishes no maintained/archived status for these samples (unlike
+[Oracle's](https://github.com/oracle-samples/db-sample-schemas)); the verdicts below are inferred from the last non-bot
+commit to each `samples/databases` folder and the date of its release asset, as checked on 2026-11-03:
+
+| database | last change | source | verdict |
+|---|---|---|---|
+| `AdventureWorks` | 2025-11-14 | `AdventureWorks2025.bak`, 2025-11-18 | maintained |
+| `AdventureWorksDW` | 2025-11-14 | `AdventureWorksDW2025.bak`, 2025-11-18 | maintained |
+| `AdventureWorksLT` | 2025-11-14 | `AdventureWorksLT2025.bak`, 2025-11-18 | maintained |
+| `FutonManufacturing` | 2026-10-06 | `futon-manufacturing/*.sql` | maintained |
+| `WideWorldImporters` | 2026-07-09 | `WideWorldImporters-Standard.bak`, 2022-10-07 | maintained |
+| `WideWorldImportersDW` | 2026-07-09 | `WideWorldImportersDW-Standard.bak`, 2016-06-08 | maintained; backup is old |
+| `Northwind` | 2024-06-27 | `instnwnd.sql` | maintained |
+| `pubs` | 2024-06-27 | `instpubs.sql` | maintained |
+| Contoso data warehouse | 2023-02-20 | load scripts for Azure SQL Data Warehouse | out: nothing runs in SQL Server |
+
+Out of scope: the superseded `adventureworks2008r2`, `adventureworks2012` and `wide-world-importers-v0.x` releases, the
+`.bacpac` files, the 2016 `_EXT` and the Full (memory-optimized) variants, the Analysis Services models, and the
+`in-memory-oltp-demo`, `iot-smart-grid` and `wwi-sales-orders` demos.
+
+SQL Server versions are the ones Microsoft still supports, from
+[`mcr.microsoft.com/mssql/server`](https://mcr.microsoft.com/product/mssql/server/about) (`linux/amd64` only):
+
+| version | newest CU (2026-11-03) | base OS | support |
+|---|---|---|---|
+| 2017 | CU31 | Ubuntu 16.04 / 18.04 | extended, until October 2027 |
+| 2019 | CU32 | Ubuntu 16.04 / 18.04 / 20.04 | extended |
+| 2022 | CU27 | Ubuntu 20.04 / 22.04 | mainstream |
+| 2025 | CU10 | Ubuntu 22.04 / 24.04 | mainstream |
+
+The matrix, 32 images; ✓ marks the cells the current image already loads and smoke-tests:
+
+| database | 2017 | 2019 | 2022 | 2025 |
+|---|---|---|---|---|
+| `AdventureWorks` | `AdventureWorks2017.bak` | `AdventureWorks2019.bak` | `AdventureWorks2022.bak` | `AdventureWorks2025.bak` ✓ |
+| `AdventureWorksDW` | `AdventureWorksDW2017.bak` | `AdventureWorksDW2019.bak` | `AdventureWorksDW2022.bak` | `AdventureWorksDW2025.bak` |
+| `AdventureWorksLT` | `AdventureWorksLT2017.bak` | `AdventureWorksLT2019.bak` | `AdventureWorksLT2022.bak` | `AdventureWorksLT2025.bak` |
+| `WideWorldImporters` | `WideWorldImporters-Standard.bak` | same | same | same ✓ |
+| `WideWorldImportersDW` | `WideWorldImportersDW-Standard.bak` | same | same | same |
+| `Northwind` | `instnwnd.sql` | same | same | same |
+| `pubs` | `instpubs.sql` | same | same | same |
+| `FutonManufacturing` | `futon-manufacturing/*.sql` | same | same | same ✓ |
+
+What each sample says it targets:
+
+- AdventureWorks, DW and LT: one backup per version; a backup restores on its version or later and keeps that version's
+  compatibility level. The 2025 backup also enables Query Store, accelerated database recovery and optimized locking,
+  and its dates are adjusted, so it is not interchangeable with the earlier ones.
+- WideWorldImporters and DW: "SQL Server 2016 (or higher)"; one backup for every version, restored at compatibility
+  level 130.
+- Northwind and pubs: "originally created for SQL Server 2000"; the scripts create the database at the server's level,
+  and `instpubs.sql` uses `ALTER DATABASE … SET RECOVERY SIMPLE` instead of `sp_dboption` on SQL Server 2014 and later.
+- FutonManufacturing: no version stated.
+
+Every cell was loaded into Microsoft's `<version>-latest` image on Apple silicon (Rosetta) on 2026-11-03, checked, and
+restarted with the database online; all 32 pass. Builds: 2017 `14.0.3560.2`, 2019 `15.0.4500.2`, 2022 `16.0.4305.5`,
+2025 `17.0.5035.5`. Compatibility level per cell:
+
+| database | 2017 | 2019 | 2022 | 2025 | tables | rows | empty tables |
+|---|---|---|---|---|---|---|---|
+| `AdventureWorks` | 140 | 150 | 160 | 170 | 71 | 760,837; 760,167 on 2025 | 1 |
+| `AdventureWorksDW` | 140 | 150 | 160 | 170 | 31 | 1,060,820; 1,047,563 on 2025 | 0 |
+| `AdventureWorksLT` | 110 | 150 | 160 | 170 | 12 | 4,277 | 1 |
+| `WideWorldImporters` | 130 | 130 | 130 | 130 | 48 | 4,713,833 | 2 |
+| `WideWorldImportersDW` | 130 | 130 | 130 | 130 | 29 | 923,643 | 13 |
+| `Northwind` | 140 | 150 | 160 | 170 | 13 | 3,308 | 2 |
+| `pubs` | 140 | 150 | 160 | 170 | 11 | 255 | 0 |
+| `FutonManufacturing` | 140 | 150 | 160 | 170 | 32 | 355 | 4 |
+
+- `AdventureWorksLT2017.bak` keeps compatibility level 110 (SQL Server 2012), unlike the other 2017 backups.
+- `instnwnd.sql` does not create its database ("Run this script in the database you want the objects to be created"),
+  so the loader has to create `Northwind` first and run the script in it.
+- The empty tables come with the samples; nothing failed to load.
+
+Open question: the 2026-07-09 commit fixed the WideWorldImportersDW table scripts, but its backup is from 2016; compare
+the restored backup with the scripts before relying on its schema.
+
 ## License
 
 The scripts of this repository are under the [MIT License](https://github.com/jinahya/sql-server-samples-docker/blob/main/LICENSE).
