@@ -20,6 +20,6 @@ CMD ["/opt/mssql/bin/sqlservr"]
 
 LABEL org.opencontainers.image.title="SQL Server with the Microsoft sample databases" \
       org.opencontainers.image.description="Official SQL Server image that loads AdventureWorks, WideWorldImporters and FutonManufacturing on first start" \
-      org.opencontainers.image.source="https://github.com/jinahya/mssql-sample-databases-docker" \
+      org.opencontainers.image.source="https://github.com/jinahya/sql-server-samples-docker" \
       org.opencontainers.image.url="https://github.com/microsoft/sql-server-samples/tree/master/samples/databases" \
       org.opencontainers.image.licenses="MIT AND LicenseRef-Microsoft-SQL-Server-EULA"

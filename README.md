@@ -1,4 +1,4 @@
-# mssql-sample-databases-docker
+# sql-server-samples-docker
 
 Docker images of the official [SQL Server](https://mcr.microsoft.com/product/mssql/server/about) image with three of
 Microsoft's [sample databases](https://github.com/microsoft/sql-server-samples/tree/master/samples/databases) loaded on
@@ -13,7 +13,7 @@ first start:
 Images are published to:
 
 - Docker Hub: [`onacit/mssql-sample-databases`](https://hub.docker.com/r/onacit/mssql-sample-databases)
-- GitHub Container Registry: [`ghcr.io/jinahya/mssql-sample-databases`](https://github.com/jinahya/mssql-sample-databases-docker/pkgs/container/mssql-sample-databases)
+- GitHub Container Registry: [`ghcr.io/jinahya/mssql-sample-databases`](https://github.com/jinahya/sql-server-samples-docker/pkgs/container/mssql-sample-databases)
 
 ## Quick start
 
@@ -89,7 +89,7 @@ scripts/smoke-test.sh mssql-sample-databases
 
 ## License
 
-The scripts of this repository are under the [MIT License](https://github.com/jinahya/mssql-sample-databases-docker/blob/main/LICENSE).
+The scripts of this repository are under the [MIT License](https://github.com/jinahya/sql-server-samples-docker/blob/main/LICENSE).
 The sample databases are Microsoft's, "Copyright (c) Microsoft Corporation", under the
 [MIT License](https://github.com/microsoft/sql-server-samples/blob/master/license.txt); the image carries that notice
 at `/opt/sample-databases/LICENSE`. SQL Server itself is under Microsoft's
