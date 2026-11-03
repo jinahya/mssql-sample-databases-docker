@@ -145,8 +145,10 @@ Out of scope: the superseded `adventureworks2008r2`, `adventureworks2012` and `w
 `.bacpac` files, the 2016 `_EXT` and the Full (memory-optimized) variants, the Analysis Services models, and the
 `in-memory-oltp-demo`, `iot-smart-grid` and `wwi-sales-orders` demos.
 
-Open question: the 2026-07-09 commit fixed the WideWorldImportersDW table scripts, but its backup is from 2016; compare
-the restored backup with the scripts before relying on its schema.
+`WideWorldImportersDW`'s backup is from 2016, while its scripts were fixed on 2026-07-09. The fix only partitions the
+five fact tables (`Movement`, `Order`, `Purchase`, `Sale`, `Transaction`) on the `PS_Date` partition scheme. The
+Standard backup has no partition scheme and keeps every fact table unpartitioned on the `USERDATA` filegroup, as
+partitioning needed Enterprise edition before SQL Server 2016 SP1; columns, keys and data are the same either way.
 
 ## License
 
