@@ -1,25 +1,35 @@
 # sql-server-samples-docker
 
-Docker images of the official [SQL Server](https://mcr.microsoft.com/product/mssql/server/about) image with three of
-Microsoft's [sample databases](https://github.com/microsoft/sql-server-samples/tree/master/samples/databases) loaded on
-first start:
+Docker images of the official [SQL Server](https://mcr.microsoft.com/product/mssql/server/about) image, one per
+SQL Server version and Microsoft
+[sample database](https://github.com/microsoft/sql-server-samples/tree/master/samples/databases), with the database
+loaded on first start. Tags are `<database>-<version>`:
 
-| database | source | what |
-|---|---|---|
-| `AdventureWorks` | [`AdventureWorks2025.bak`](https://github.com/microsoft/sql-server-samples/releases/tag/adventureworks) | the classic OLTP sample: 71 tables in 6 schemas |
-| `WideWorldImporters` | [`WideWorldImporters-Standard.bak`](https://github.com/microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0) | the SQL Server 2016+ sample: 26 sequences, 17 temporal tables |
-| `FutonManufacturing` | [`futon-manufacturing/*.sql`](https://github.com/microsoft/sql-server-samples/tree/master/samples/databases/futon-manufacturing) | a multi-level bill of materials, inventory, production and sales: 32 tables, 40 views |
+| database | 2017 | 2019 | 2022 | 2025 | what |
+|---|---|---|---|---|---|
+| `AdventureWorks` | `adventureworks-2017` | `adventureworks-2019` | `adventureworks-2022` | `adventureworks-2025` | the classic OLTP sample: 71 tables in 6 schemas |
+| `AdventureWorksDW` | `adventureworks-dw-2017` | `adventureworks-dw-2019` | `adventureworks-dw-2022` | `adventureworks-dw-2025` | its data warehouse: 31 tables |
+| `AdventureWorksLT` | `adventureworks-lt-2017` | `adventureworks-lt-2019` | `adventureworks-lt-2022` | `adventureworks-lt-2025` | its lightweight version: 12 tables |
+| `WideWorldImporters` | `wideworldimporters-2017` | `wideworldimporters-2019` | `wideworldimporters-2022` | `wideworldimporters-2025` | the SQL Server 2016+ sample: 48 tables, sequences, temporal tables |
+| `WideWorldImportersDW` | `wideworldimporters-dw-2017` | `wideworldimporters-dw-2019` | `wideworldimporters-dw-2022` | `wideworldimporters-dw-2025` | its data warehouse: 29 tables |
+| `Northwind` | `northwind-2017` | `northwind-2019` | `northwind-2022` | `northwind-2025` | the SQL Server 2000 sample: 13 tables |
+| `pubs` | `pubs-2017` | `pubs-2019` | `pubs-2022` | `pubs-2025` | the SQL Server 2000 sample: 11 tables |
+| `FutonManufacturing` | `futon-manufacturing-2017` | `futon-manufacturing-2019` | `futon-manufacturing-2022` | `futon-manufacturing-2025` | a multi-level bill of materials, inventory, production and sales: 32 tables, 40 views |
 
 Images are published to:
 
-- Docker Hub: [`onacit/mssql-sample-databases`](https://hub.docker.com/r/onacit/mssql-sample-databases)
-- GitHub Container Registry: [`ghcr.io/jinahya/mssql-sample-databases`](https://github.com/jinahya/sql-server-samples-docker/pkgs/container/mssql-sample-databases)
+- Docker Hub: [`onacit/sql-server-samples`](https://hub.docker.com/r/onacit/sql-server-samples)
+- GitHub Container Registry: [`ghcr.io/jinahya/sql-server-samples`](https://github.com/jinahya/sql-server-samples-docker/pkgs/container/sql-server-samples)
+
+They replace `onacit/mssql-sample-databases`, which held AdventureWorks, WideWorldImporters and FutonManufacturing in
+one SQL Server 2025 image and is no longer updated.
 
 ## Quick start
 
 ```sh
-docker run -d --name mssql-samples -p 1433:1433 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Passw0rd!' onacit/mssql-sample-databases
-# wait until `docker inspect -f '{{.State.Health.Status}}' mssql-samples` says healthy, then
+docker run -d --name adventureworks -p 1433:1433 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Passw0rd!' \
+  onacit/sql-server-samples:adventureworks-2025
+# wait until `docker inspect -f '{{.State.Health.Status}}' adventureworks` says healthy, then
 sqlcmd -C -S localhost -U sa -P 'Passw0rd!' -Q 'SELECT count(*) FROM AdventureWorks.Person.Person'
 ```
 
@@ -30,7 +40,7 @@ sqlcmd -C -S localhost -U sa -P 'Passw0rd!' -Q 'SELECT count(*) FROM AdventureWo
 edition is Developer (`MSSQL_PID=developer`), free for development and testing only. Everything else behaves exactly
 like the official image.
 
-A JDBC URL for one of the databases:
+A JDBC URL for the database:
 
 ```
 jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;encrypt=true;trustServerCertificate=true
@@ -40,25 +50,47 @@ jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;encrypt=true;trustSe
 
 | tag | meaning |
 |---|---|
-| `latest`, `2025-latest` | built on `mcr.microsoft.com/mssql/server:2025-latest`, rebuilt weekly |
-| `17.0.5035.5`, ... | the SQL Server build of the base image; pin this for an image that never changes |
+| `<database>-<version>`, such as `adventureworks-2025` | built on `mcr.microsoft.com/mssql/server:<version>-latest`, rebuilt weekly |
+| `<database>-<build>`, such as `adventureworks-17.0.5035.5` | the SQL Server build of the base image; pin this for an image that never changes |
 
-Images are `linux/amd64` only, as SQL Server is. On Apple silicon they run under Rosetta; turn on *Use Rosetta for
-x86_64/amd64 emulation* in Docker Desktop and pass `--platform linux/amd64`.
+The versions are the ones Microsoft still supports: 2017 (extended support until October 2027), 2019 (extended), 2022
+and 2025 (mainstream). Images are `linux/amd64` only, as SQL Server is. On Apple silicon they run under Rosetta; turn
+on *Use Rosetta for x86_64/amd64 emulation* in Docker Desktop and pass `--platform linux/amd64`.
 
 ## How it works
 
-The image adds the two backups, the Futon Manufacturing scripts and a small entrypoint to the official image. The
-entrypoint starts a loader in the background and hands over to the official launcher, so SQL Server stays PID 1. On the
-first start of an empty data directory the loader waits for the server, restores `AdventureWorks` and
-`WideWorldImporters`, runs the Futon Manufacturing scripts `01`, `02`, `03`, `05`, `06` and `07` (`04` and `08` hold
-sample queries only), and writes `/var/opt/mssql/.sample-databases-loaded`. The container reports healthy only after
-that file exists, which takes under a minute. Later starts skip the load, so keep `/var/opt/mssql` in a volume to avoid
-reloading. If the load fails, the loader stops the server and the container exits; the next start loads again.
+Each image adds one database's backup or scripts and a small entrypoint to the official image. The entrypoint starts a
+loader in the background and hands over to the official image's own entrypoint. On the first start of an empty data
+directory the loader waits for the server, restores the backup or runs the scripts, and writes
+`/var/opt/mssql/.sample-databases-loaded`. The container reports healthy only after that file exists, which takes
+under a minute. Later starts skip the load, so keep `/var/opt/mssql` in a volume to avoid reloading. If the load
+fails, the loader stops the server and the container exits; the next start loads again.
 
-`WideWorldImporters` comes from the Standard backup, which has no memory-optimized tables. The Full backup's
-memory-optimized tables crash SQL Server now and then under Rosetta, on restore and on later starts alike; the Standard
-backup has the same data, temporal tables and sequences.
+What each database is loaded from:
+
+| database | 2017 | 2019 | 2022 | 2025 |
+|---|---|---|---|---|
+| `AdventureWorks` | `AdventureWorks2017.bak` | `AdventureWorks2019.bak` | `AdventureWorks2022.bak` | `AdventureWorks2025.bak` |
+| `AdventureWorksDW` | `AdventureWorksDW2017.bak` | `AdventureWorksDW2019.bak` | `AdventureWorksDW2022.bak` | `AdventureWorksDW2025.bak` |
+| `AdventureWorksLT` | `AdventureWorksLT2017.bak` | `AdventureWorksLT2019.bak` | `AdventureWorksLT2022.bak` | `AdventureWorksLT2025.bak` |
+| `WideWorldImporters` | `WideWorldImporters-Standard.bak` | same | same | same |
+| `WideWorldImportersDW` | `WideWorldImportersDW-Standard.bak` | same | same | same |
+| `Northwind` | `instnwnd.sql` | same | same | same |
+| `pubs` | `instpubs.sql` | same | same | same |
+| `FutonManufacturing` | `futon-manufacturing/*.sql` `01`, `02`, `03`, `05`, `06`, `07` | same | same | same |
+
+- AdventureWorks, DW and LT have one backup per version, which keeps that version's compatibility level, except
+  `AdventureWorksLT2017.bak`, which keeps 110 (SQL Server 2012). The 2025 backups also enable Query Store, accelerated
+  database recovery and optimized locking, and their dates are adjusted, so their rows differ slightly from the
+  earlier ones (`AdventureWorks` 760,167 rows against 760,837).
+- WideWorldImporters and DW have one backup for every version, which stays at compatibility level 130 (SQL Server
+  2016). They come from the Standard backups, which have no memory-optimized tables: the Full backups'
+  memory-optimized tables crash SQL Server now and then under Rosetta, on restore and on later starts alike. The
+  Standard backups have the same data, temporal tables and sequences.
+- `instnwnd.sql` does not create its database, so the loader creates `Northwind` first; `instpubs.sql` creates `pubs`
+  itself. Both create the database at the server's compatibility level.
+- FutonManufacturing's `04` and `08` hold sample queries only.
+- Some tables are empty in the samples themselves, most of all in `WideWorldImportersDW` (13 of 29).
 
 Full-text search is not installed, as in the official image. `AdventureWorks` keeps its full-text catalog, but queries
 that use `CONTAINS` or `FREETEXT`, such as `dbo.uspSearchCandidateResumes`, fail.
@@ -76,28 +108,26 @@ All variables of the official image apply as well.
 ## Building locally
 
 ```sh
-scripts/fetch.sh                  # downloads ./downloads/* and verifies each file's sha256 from versions.json
-docker build --platform linux/amd64 -t mssql-sample-databases .
-scripts/smoke-test.sh mssql-sample-databases
+scripts/build.sh adventureworks 2025   # fetches, builds sql-server-samples:adventureworks-2025, smoke-tests it
 ```
+
+`scripts/build.sh` runs `scripts/fetch.sh <database> <version>`, which downloads the files into `./downloads/files`,
+verifies each one's sha256 from `versions.json` and stages one image's files in `./downloads/image`; then
+`docker build` with the version's base image as `BASE_IMAGE`; then `scripts/smoke-test.sh`, which checks the database
+has tables with rows and survives a restart.
 
 ## Maintenance
 
-- A new cumulative update of SQL Server 2025 is picked up by the weekly build.
-- A new sample release: update the file's `url` and `sha256` in `versions.json`, and the restore's logical file names in
-  `entrypoint/load.sh` if they changed (`RESTORE FILELISTONLY` lists them).
+- A new cumulative update of a SQL Server version is picked up by the weekly build.
+- A new sample release: update the file's `url` and `sha256` in `versions.json`.
+- A new SQL Server version: add it to `versions` in `versions.json`, and its backups to the AdventureWorks entries.
 
-## Roadmap
+## Which samples
 
-Planned, not built yet: one image per database and SQL Server version, tagged `sql-server-samples:<db>-<version>`,
-with no combined image. A database gets images when
-[microsoft/sql-server-samples](https://github.com/microsoft/sql-server-samples) still maintains it (not archived nor
-abandoned; a change some years ago counts, one decades ago does not), whether it ships as a release `.bak` or as
-scripts.
-
-Microsoft publishes no maintained/archived status for these samples (unlike
-[Oracle's](https://github.com/oracle-samples/db-sample-schemas)); the verdicts below are inferred from the last non-bot
-commit to each `samples/databases` folder and the date of its release asset, as checked on 2026-11-03:
+The images cover the samples [microsoft/sql-server-samples](https://github.com/microsoft/sql-server-samples) still
+maintains, whether they ship as a release `.bak` or as scripts. Microsoft publishes no maintained/archived status for
+them (unlike [Oracle's](https://github.com/oracle-samples/db-sample-schemas)); the verdicts below are inferred from the
+last non-bot commit to each `samples/databases` folder and the date of its release asset, as checked on 2026-11-03:
 
 | database | last change | source | verdict |
 |---|---|---|---|
@@ -115,60 +145,6 @@ Out of scope: the superseded `adventureworks2008r2`, `adventureworks2012` and `w
 `.bacpac` files, the 2016 `_EXT` and the Full (memory-optimized) variants, the Analysis Services models, and the
 `in-memory-oltp-demo`, `iot-smart-grid` and `wwi-sales-orders` demos.
 
-SQL Server versions are the ones Microsoft still supports, from
-[`mcr.microsoft.com/mssql/server`](https://mcr.microsoft.com/product/mssql/server/about) (`linux/amd64` only):
-
-| version | newest CU (2026-11-03) | base OS | support |
-|---|---|---|---|
-| 2017 | CU31 | Ubuntu 16.04 / 18.04 | extended, until October 2027 |
-| 2019 | CU32 | Ubuntu 16.04 / 18.04 / 20.04 | extended |
-| 2022 | CU27 | Ubuntu 20.04 / 22.04 | mainstream |
-| 2025 | CU10 | Ubuntu 22.04 / 24.04 | mainstream |
-
-The matrix, 32 images; ✓ marks the cells the current image already loads and smoke-tests:
-
-| database | 2017 | 2019 | 2022 | 2025 |
-|---|---|---|---|---|
-| `AdventureWorks` | `AdventureWorks2017.bak` | `AdventureWorks2019.bak` | `AdventureWorks2022.bak` | `AdventureWorks2025.bak` ✓ |
-| `AdventureWorksDW` | `AdventureWorksDW2017.bak` | `AdventureWorksDW2019.bak` | `AdventureWorksDW2022.bak` | `AdventureWorksDW2025.bak` |
-| `AdventureWorksLT` | `AdventureWorksLT2017.bak` | `AdventureWorksLT2019.bak` | `AdventureWorksLT2022.bak` | `AdventureWorksLT2025.bak` |
-| `WideWorldImporters` | `WideWorldImporters-Standard.bak` | same | same | same ✓ |
-| `WideWorldImportersDW` | `WideWorldImportersDW-Standard.bak` | same | same | same |
-| `Northwind` | `instnwnd.sql` | same | same | same |
-| `pubs` | `instpubs.sql` | same | same | same |
-| `FutonManufacturing` | `futon-manufacturing/*.sql` | same | same | same ✓ |
-
-What each sample says it targets:
-
-- AdventureWorks, DW and LT: one backup per version; a backup restores on its version or later and keeps that version's
-  compatibility level. The 2025 backup also enables Query Store, accelerated database recovery and optimized locking,
-  and its dates are adjusted, so it is not interchangeable with the earlier ones.
-- WideWorldImporters and DW: "SQL Server 2016 (or higher)"; one backup for every version, restored at compatibility
-  level 130.
-- Northwind and pubs: "originally created for SQL Server 2000"; the scripts create the database at the server's level,
-  and `instpubs.sql` uses `ALTER DATABASE … SET RECOVERY SIMPLE` instead of `sp_dboption` on SQL Server 2014 and later.
-- FutonManufacturing: no version stated.
-
-Every cell was loaded into Microsoft's `<version>-latest` image on Apple silicon (Rosetta) on 2026-11-03, checked, and
-restarted with the database online; all 32 pass. Builds: 2017 `14.0.3560.2`, 2019 `15.0.4500.2`, 2022 `16.0.4305.5`,
-2025 `17.0.5035.5`. Compatibility level per cell:
-
-| database | 2017 | 2019 | 2022 | 2025 | tables | rows | empty tables |
-|---|---|---|---|---|---|---|---|
-| `AdventureWorks` | 140 | 150 | 160 | 170 | 71 | 760,837; 760,167 on 2025 | 1 |
-| `AdventureWorksDW` | 140 | 150 | 160 | 170 | 31 | 1,060,820; 1,047,563 on 2025 | 0 |
-| `AdventureWorksLT` | 110 | 150 | 160 | 170 | 12 | 4,277 | 1 |
-| `WideWorldImporters` | 130 | 130 | 130 | 130 | 48 | 4,713,833 | 2 |
-| `WideWorldImportersDW` | 130 | 130 | 130 | 130 | 29 | 923,643 | 13 |
-| `Northwind` | 140 | 150 | 160 | 170 | 13 | 3,308 | 2 |
-| `pubs` | 140 | 150 | 160 | 170 | 11 | 255 | 0 |
-| `FutonManufacturing` | 140 | 150 | 160 | 170 | 32 | 355 | 4 |
-
-- `AdventureWorksLT2017.bak` keeps compatibility level 110 (SQL Server 2012), unlike the other 2017 backups.
-- `instnwnd.sql` does not create its database ("Run this script in the database you want the objects to be created"),
-  so the loader has to create `Northwind` first and run the script in it.
-- The empty tables come with the samples; nothing failed to load.
-
 Open question: the 2026-07-09 commit fixed the WideWorldImportersDW table scripts, but its backup is from 2016; compare
 the restored backup with the scripts before relying on its schema.
 
@@ -176,6 +152,6 @@ the restored backup with the scripts before relying on its schema.
 
 The scripts of this repository are under the [MIT License](https://github.com/jinahya/sql-server-samples-docker/blob/main/LICENSE).
 The sample databases are Microsoft's, "Copyright (c) Microsoft Corporation", under the
-[MIT License](https://github.com/microsoft/sql-server-samples/blob/master/license.txt); the image carries that notice
+[MIT License](https://github.com/microsoft/sql-server-samples/blob/master/license.txt); each image carries that notice
 at `/opt/sample-databases/LICENSE`. SQL Server itself is under Microsoft's
 [license terms](https://go.microsoft.com/fwlink/?linkid=857698).

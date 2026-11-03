@@ -31,6 +31,6 @@ jobs:
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_TOKEN }}
-          repository: ${{ env.DOCKERHUB_USERNAME }}/mssql-sample-databases
-          short-description: "SQL Server with AdventureWorks, WideWorldImporters and FutonManufacturing, loaded on first start"
+          repository: ${{ env.DOCKERHUB_USERNAME }}/sql-server-samples
+          short-description: "SQL Server 2017 to 2025, each with one of Microsoft's sample databases loaded on first start"
           readme-filepath: ./README.md

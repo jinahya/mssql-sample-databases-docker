@@ -17,7 +17,7 @@ on:
       - versions.json
       - .github/workflows/build.yml
   schedule:
-    - cron: "17 3 * * 1"   # weekly, picks up new SQL Server cumulative updates in the base image
+    - cron: "17 3 * * 1"   # weekly, picks up new SQL Server cumulative updates in the base images
   workflow_dispatch:
     inputs:
       push:
@@ -33,28 +33,53 @@ concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  IMAGE: mssql-sample-databases
-  PLATFORMS: linux/amd64
-
 jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      cells: ${{ steps.cells.outputs.cells }}
+      image: ${{ steps.cells.outputs.image }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: List every database and version in versions.json
+        id: cells
+        run: |
+          python3 -I - >> "$GITHUB_OUTPUT" <<'EOF'
+          import json
+          v = json.load(open("versions.json"))
+          cells = [{"database": d, "version": s} for d in v["databases"] for s in v["versions"]]
+          print("cells=" + json.dumps(cells))
+          print("image=" + v["image"])
+          EOF
+
   build:
+    needs: matrix
+    name: ${{ matrix.database }}-${{ matrix.version }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.cells) }}
     env:
+      IMAGE: ${{ needs.matrix.outputs.image }}
+      PLATFORMS: linux/amd64
       PUSH: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.push) }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
 
-      - name: Download backups and scripts
-        run: scripts/fetch.sh
+      - name: Download the backup or scripts
+        run: scripts/fetch.sh ${{ matrix.database }} ${{ matrix.version }}
 
       - name: Resolve the base image
         id: base
         run: |
-          base=$(python3 -I -c 'import json;print(json.load(open("versions.json"))["base_image"])')
+          base=$(python3 -I -c 'import json,sys;print(json.load(open("versions.json"))["versions"][sys.argv[1]])' \
+            ${{ matrix.version }})
           docker pull --platform linux/amd64 "$base"
           version=$(docker inspect -f '{{ index .Config.Labels "com.microsoft.version" }}' "$base")
           echo "image=${base}" >> "$GITHUB_OUTPUT"
@@ -99,9 +124,8 @@ jobs:
         id: refs
         env:
           TAGS: |
-            latest
-            2025-latest
-            ${{ steps.base.outputs.version }}
+            ${{ matrix.database }}-${{ matrix.version }}
+            ${{ matrix.database }}-${{ steps.base.outputs.version }}
         run: |
           {
             echo "tags<<EOF"

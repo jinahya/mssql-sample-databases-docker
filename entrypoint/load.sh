@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Loads the sample databases into the running server once: restores AdventureWorks and WideWorldImporters from their
-# backups and runs the Futon Manufacturing scripts. Started in the background by entrypoint.sh. On success it writes
-# the marker the health check looks for; on failure it stops the server, so the container exits instead of hanging.
+# Loads the image's sample database into the running server once: restores it from its backup, or runs its scripts in
+# order. database.env, written by scripts/fetch.sh, names the database and its files. Started in the background by
+# entrypoint.sh. On success it writes the marker the health check looks for; on failure it stops the server, so the
+# container exits instead of hanging.
 set -Eeuo pipefail
 
 home=/opt/sample-databases
@@ -9,13 +10,23 @@ data=/var/opt/mssql/data
 marker=/var/opt/mssql/.sample-databases-loaded
 timeout=${SAMPLE_DATABASES_STARTUP_TIMEOUT:-300}
 
+# SAMPLE_DATABASE_NAME, SAMPLE_DATABASE_FILES (in load order), SAMPLE_DATABASE_CREATE (1: the scripts expect the
+# database to exist)
+. "${home}/database.env"
+name=$SAMPLE_DATABASE_NAME
+
 log() { echo "sample-databases: $*"; }
 
-sqlcmd() { /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -b -I "$@"; }
+# 2017 has only the old tools, which do not know -C (trust the server certificate)
+if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then
+  sqlcmd() { /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -b -I "$@"; }
+else
+  sqlcmd() { /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -b -I "$@"; }
+fi
 
 fail() {
   log "load failed: $*" >&2
-  pkill -TERM -x sqlservr || true
+  pkill -TERM -x sqlservr 2>/dev/null || kill -TERM 1 || true
   exit 1
 }
 trap 'fail "line ${LINENO}"' ERR
@@ -36,25 +47,30 @@ until sqlcmd -Q "SELECT 1" >/dev/null 2>&1; do
   sleep 2
 done
 
-log "restoring AdventureWorks"
-sqlcmd -Q "RESTORE DATABASE [AdventureWorks] FROM DISK = N'${home}/AdventureWorks2025.bak' WITH REPLACE,
-  MOVE N'AdventureWorks' TO N'${data}/AdventureWorks.mdf',
-  MOVE N'AdventureWorks_log' TO N'${data}/AdventureWorks_log.ldf'"
-
-# The Standard backup, not the Full one: the Full one's memory-optimized tables crash SQL Server now and then under
-# Rosetta, on restore and on later starts alike. The Standard one keeps the temporal tables and the sequences.
-log "restoring WideWorldImporters"
-sqlcmd -Q "RESTORE DATABASE [WideWorldImporters] FROM DISK = N'${home}/WideWorldImporters-Standard.bak' WITH REPLACE,
-  MOVE N'WWI_Primary' TO N'${data}/WideWorldImporters.mdf',
-  MOVE N'WWI_UserData' TO N'${data}/WideWorldImporters_UserData.ndf',
-  MOVE N'WWI_Log' TO N'${data}/WideWorldImporters.ldf'"
-
-# 04 and 08 hold sample queries only; 01 drops and recreates the database, so a rerun starts clean
-for f in 01-schema 02-sample-data 03-manufacturing-reports 05-sales-schema-enhancements 06-sales-sample-data \
-         07-sales-reports; do
-  log "loading FutonManufacturing: ${f}.sql"
-  sqlcmd -i "${home}/futon-manufacturing/${f}.sql" >/dev/null
-done
+read -r -a files <<< "$SAMPLE_DATABASE_FILES"
+if [[ ${files[0]} == *.bak ]]; then
+  backup=${home}/files/${files[0]}
+  # Moves every file of the backup into the data directory: the first data file to <name>.mdf, further data files to
+  # <name>_<logical name>.ndf, the log to <name>_log.ldf
+  moves=$(sqlcmd -h -1 -W -s '|' -Q "SET NOCOUNT ON; RESTORE FILELISTONLY FROM DISK = N'${backup}'" | tr -d '\r' \
+    | awk -F '|' -v d="${data}/${name}" 'NF > 3 {
+        if ($3 == "L") path = d "_log.ldf"; else if (++n == 1) path = d ".mdf"; else path = d "_" $1 ".ndf"
+        printf ", MOVE N'\''%s'\'' TO N'\''%s'\''", $1, path }')
+  [ -n "$moves" ] || fail "RESTORE FILELISTONLY listed no files"
+  log "restoring ${name} from ${files[0]}"
+  sqlcmd -Q "RESTORE DATABASE [${name}] FROM DISK = N'${backup}' WITH REPLACE${moves}" >/dev/null
+else
+  database=()
+  if [ "${SAMPLE_DATABASE_CREATE:-0}" = 1 ]; then
+    log "creating ${name}"
+    sqlcmd -Q "IF DB_ID(N'${name}') IS NULL CREATE DATABASE [${name}]"
+    database=(-d "$name")
+  fi
+  for f in "${files[@]}"; do
+    log "loading ${name}: ${f}"
+    sqlcmd "${database[@]}" -i "${home}/files/${f}" >/dev/null
+  done
+fi
 
 touch "$marker"
-log "loaded AdventureWorks, WideWorldImporters, FutonManufacturing"
+log "loaded ${name}"

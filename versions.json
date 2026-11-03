@@ -1,52 +1,179 @@
 {
-  "image": "mssql-sample-databases",
-  "base_image": "mcr.microsoft.com/mssql/server:2025-latest",
+  "image": "sql-server-samples",
   "platforms": "linux/amd64",
-  "files": [
-    {
-      "path": "downloads/AdventureWorks2025.bak",
-      "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorks2025.bak",
-      "sha256": "fa6a2a5d431ad88123f89b36b1f2c7e42ca4bdf6b293269a44df80f6de3738a5"
+  "versions": {
+    "2017": "mcr.microsoft.com/mssql/server:2017-latest",
+    "2019": "mcr.microsoft.com/mssql/server:2019-latest",
+    "2022": "mcr.microsoft.com/mssql/server:2022-latest",
+    "2025": "mcr.microsoft.com/mssql/server:2025-latest"
+  },
+  "license": {
+    "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/license.txt",
+    "sha256": "201f3705979e932c92cd3c6ddbddf4dc3c71dcc5a82089a1e4018227cfe1cf09"
+  },
+  "databases": {
+    "adventureworks": {
+      "name": "AdventureWorks",
+      "files": {
+        "2017": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorks2017.bak",
+            "sha256": "449b862f7f8f16f5b984f85d17692a225299df1870372a9f8e50f99073b26e33"
+          }
+        ],
+        "2019": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorks2019.bak",
+            "sha256": "fadd0d8d0fa952dd7620c7d543c74c58fac4f338b870cd4d4f14d01fdd01f5c9"
+          }
+        ],
+        "2022": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorks2022.bak",
+            "sha256": "d17567adb1521f972e1dc183a7216cea869c4580b5d75632425bcadbaf82ce5e"
+          }
+        ],
+        "2025": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorks2025.bak",
+            "sha256": "fa6a2a5d431ad88123f89b36b1f2c7e42ca4bdf6b293269a44df80f6de3738a5"
+          }
+        ]
+      }
     },
-    {
-      "path": "downloads/WideWorldImporters-Standard.bak",
-      "url": "https://github.com/microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Standard.bak",
-      "sha256": "066279a8cd28c8d85cbd8215ea71a5d672b420cfbc19756b635c27bd8027dada"
+    "adventureworks-dw": {
+      "name": "AdventureWorksDW",
+      "files": {
+        "2017": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorksDW2017.bak",
+            "sha256": "4856ce6ddbe36e3566594c39f8b67539071c8ffe8f91c5ad62c2c0c860033a5a"
+          }
+        ],
+        "2019": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorksDW2019.bak",
+            "sha256": "cc666a96966402288df50d2ed010371e9ed59d969117b1c13b116a474e3042ed"
+          }
+        ],
+        "2022": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorksDW2022.bak",
+            "sha256": "ac4a39502645c31f114331be28ce671ac5f70b0645f2aa59d8dccfbaae081c05"
+          }
+        ],
+        "2025": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorksDW2025.bak",
+            "sha256": "358ba9591bc825b89868c532dcf427e888654bbbf42de851bff2fd2937ccbd97"
+          }
+        ]
+      }
     },
-    {
-      "path": "downloads/futon-manufacturing/01-schema.sql",
-      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/01-schema.sql",
-      "sha256": "a1b75d768cf1cc38a7b60f3dc27b4a5fd4f8f09ff2fcb5f0106f4bb1ec3afb73"
+    "adventureworks-lt": {
+      "name": "AdventureWorksLT",
+      "files": {
+        "2017": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorksLT2017.bak",
+            "sha256": "b3e1bb04621a07aa35bf6f65e5351ee874d770620e83040dfa23e53135573377"
+          }
+        ],
+        "2019": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorksLT2019.bak",
+            "sha256": "a15724450505b5e344293e7470be2f1da115601acb5709e9cafbbfb76259a78b"
+          }
+        ],
+        "2022": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorksLT2022.bak",
+            "sha256": "7e1ae09a08ee0342781bacfba9da79e91b67991aabcd1a42454a3b64eb60d626"
+          }
+        ],
+        "2025": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorksLT2025.bak",
+            "sha256": "f3b0588a210623db0721bb9b491722240b435a88e72698f57a63d753959b4031"
+          }
+        ]
+      }
     },
-    {
-      "path": "downloads/futon-manufacturing/02-sample-data.sql",
-      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/02-sample-data.sql",
-      "sha256": "cd4597e75068a835c8da5ec72c79b28f9d5893cb46b5bc2210c62bb89b09bf76"
+    "wideworldimporters": {
+      "name": "WideWorldImporters",
+      "files": {
+        "*": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Standard.bak",
+            "sha256": "066279a8cd28c8d85cbd8215ea71a5d672b420cfbc19756b635c27bd8027dada"
+          }
+        ]
+      }
     },
-    {
-      "path": "downloads/futon-manufacturing/03-manufacturing-reports.sql",
-      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/03-manufacturing-reports.sql",
-      "sha256": "e621b5d7e8f2a87d74c67b7a801908dc27252f0a533d3935e642847fe5512da8"
+    "wideworldimporters-dw": {
+      "name": "WideWorldImportersDW",
+      "files": {
+        "*": [
+          {
+            "url": "https://github.com/microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImportersDW-Standard.bak",
+            "sha256": "7604748509c07edec748c484aee26382947b1a78d50e85a7237380782ee22138"
+          }
+        ]
+      }
     },
-    {
-      "path": "downloads/futon-manufacturing/05-sales-schema-enhancements.sql",
-      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/05-sales-schema-enhancements.sql",
-      "sha256": "af42716347663d4e0016b9ae19c557a99310ddcccc032e31debd2bcaa72da7ba"
+    "northwind": {
+      "name": "Northwind",
+      "create": true,
+      "files": {
+        "*": [
+          {
+            "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/northwind-pubs/instnwnd.sql",
+            "sha256": "3cc62b3fca6d244a47dbde698b809331e4f85988a0685b2b370717d431e94871"
+          }
+        ]
+      }
     },
-    {
-      "path": "downloads/futon-manufacturing/06-sales-sample-data.sql",
-      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/06-sales-sample-data.sql",
-      "sha256": "6c91bc7bf0a61f47095de306147954417f1b64ed64664ca712d058a3f65f094d"
+    "pubs": {
+      "name": "pubs",
+      "files": {
+        "*": [
+          {
+            "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/northwind-pubs/instpubs.sql",
+            "sha256": "c66479d429f482ef788290dd94bb315f2277327765f480b2b21be6f359eb4bad"
+          }
+        ]
+      }
     },
-    {
-      "path": "downloads/futon-manufacturing/07-sales-reports.sql",
-      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/07-sales-reports.sql",
-      "sha256": "fcb59e41722ef14ae85c6404c4e96ffe10c6436e01d3bed9eeaa709af113695b"
-    },
-    {
-      "path": "downloads/sql-server-samples-license.txt",
-      "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/license.txt",
-      "sha256": "201f3705979e932c92cd3c6ddbddf4dc3c71dcc5a82089a1e4018227cfe1cf09"
+    "futon-manufacturing": {
+      "name": "FutonManufacturing",
+      "files": {
+        "*": [
+          {
+            "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/01-schema.sql",
+            "sha256": "a1b75d768cf1cc38a7b60f3dc27b4a5fd4f8f09ff2fcb5f0106f4bb1ec3afb73"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/02-sample-data.sql",
+            "sha256": "cd4597e75068a835c8da5ec72c79b28f9d5893cb46b5bc2210c62bb89b09bf76"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/03-manufacturing-reports.sql",
+            "sha256": "e621b5d7e8f2a87d74c67b7a801908dc27252f0a533d3935e642847fe5512da8"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/05-sales-schema-enhancements.sql",
+            "sha256": "af42716347663d4e0016b9ae19c557a99310ddcccc032e31debd2bcaa72da7ba"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/06-sales-sample-data.sql",
+            "sha256": "6c91bc7bf0a61f47095de306147954417f1b64ed64664ca712d058a3f65f094d"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/microsoft/sql-server-samples/3c71696a3942879f0481f3bd65fe112a40023f18/samples/databases/futon-manufacturing/07-sales-reports.sql",
+            "sha256": "fcb59e41722ef14ae85c6404c4e96ffe10c6436e01d3bed9eeaa709af113695b"
+          }
+        ]
+      }
     }
-  ]
+  }
 }
