@@ -18,7 +18,7 @@ loaded on first start. Tags are `<database>-<version>`:
 
 Images are published to:
 
-- Docker Hub: [`onacit/sql-server-samples`](https://hub.docker.com/r/onacit/sql-server-samples)
+- Docker Hub: [`jinahya/sql-server-samples`](https://hub.docker.com/r/jinahya/sql-server-samples)
 - GitHub Container Registry: [`ghcr.io/jinahya/sql-server-samples`](https://github.com/jinahya/sql-server-samples-docker/pkgs/container/sql-server-samples)
 
 They replace `onacit/mssql-sample-databases`, which held AdventureWorks, WideWorldImporters and FutonManufacturing in
@@ -28,7 +28,7 @@ one SQL Server 2025 image and is no longer updated.
 
 ```sh
 docker run -d --name adventureworks -p 1433:1433 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Passw0rd!' \
-  onacit/sql-server-samples:adventureworks-2025
+  jinahya/sql-server-samples:adventureworks-2025
 # wait until `docker inspect -f '{{.State.Health.Status}}' adventureworks` says healthy, then
 sqlcmd -C -S localhost -U sa -P 'Passw0rd!' -Q 'SELECT count(*) FROM AdventureWorks.Person.Person'
 ```
